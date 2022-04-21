@@ -22,9 +22,14 @@ def transaction(agent1, agent2):
 
 if __name__ == '__main__':
     agent1 = Agent(1,1,2)
-    agent2 = Agent(2,2,3)
-    agent3 = Agent(3,3,1)
-    agent4 = Agent(4,3,1)
+    agent2 = Agent(2,1,2)
+    agent3 = Agent(3,1,2)
+    agent4 = Agent(4,1,2)
+    agent5 = Agent(5,1,2)
+    agent6 = Agent(6,1,2)
+    agent7 = Agent(7,2,3)
+    agent8 = Agent(8,2,3)
+    agent9 = Agent(9,2,3)
     dic = {agent1: agent2,agent3:agent4};
     for key in dic:
             transaction(key,dic[key])
