@@ -16,11 +16,16 @@ class Agent:
               self.storage_type)
 
 
-def transaction(agent1, agent2):
-    pass
+def match(mylist):
+    random.shuffle(mylist)
+    matchlist = dict()
+    index = list(range(0, len(mylist), 2))
+    for i in index:
+        matchlist[mylist[i]] = mylist[i+1]
+    return matchlist
 
 
-if __name__ == '__main__':   
+if __name__ == '__main__':
     mylist = list()
     agent1 = Agent(1,1,2)
     mylist.append(agent1)
@@ -71,16 +76,9 @@ if __name__ == '__main__':
     agent24 = Agent(24,3,1)
     mylist.append(agent24)
 
-    random.shuffle(mylist)
-
-    matchlist = dict()
-    index = list(range(0, len(mylist), 2))
-    for i in index:
-        matchlist[mylist[i]] = mylist[i+1]
-
-    for x, y in matchlist.items():
-        print(x.id, y.id)
-
+    matched_list = match(mylist)
+    for key in matched_list.keys():
+            print(key.id,matched_list[key].id)
 #hx wo ai ni
 # i love zw
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
