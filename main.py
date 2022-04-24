@@ -16,8 +16,18 @@ class Agent:
               self.storage_type)
 
 
-def transaction(agent1, agent2):
-    pass
+    def transaction(agent1, agent2):
+        pass
+    
+    #matching process
+    def match(mylist):
+    random.shuffle(mylist)
+    matchlist = dict()
+    index = list(range(0, len(mylist), 2))
+    for i in index:
+        matchlist[mylist[i]] = mylist[i+1]
+    return matchlist
+
 
 
 if __name__ == '__main__':   
