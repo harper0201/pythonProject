@@ -1,5 +1,5 @@
 # This is a sample Python script.
-
+import random
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 class Agent:
@@ -21,15 +21,27 @@ def transaction(agent1, agent2):
 
 
 if __name__ == '__main__':
+
+    mylist = list()
     agent1 = Agent(1,1,2)
+    mylist.append(agent1)
     agent2 = Agent(2,2,3)
+    mylist.append(agent2)
     agent3 = Agent(3,3,1)
+    mylist.append(agent3)
     agent4 = Agent(4,3,1)
-    dic = {agent1: agent2,agent3:agent4};
-    for key in dic:
-            transaction(key,dic[key])
-    agent1.displayAgent()
+    mylist.append(agent4)
+
+    random.shuffle(mylist)
+
+    matchlist = dict()
+    index = list(range(0, len(mylist), 2))
+    for i in index:
+        matchlist[mylist[i]] = mylist[i+1]
+
+    for x, y in matchlist.items():
+        print(x.id, y.id)
 
 #hx wo ai ni
-# i love whj
+# i love zw
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
