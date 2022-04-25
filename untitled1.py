@@ -9,21 +9,26 @@ class Agent:
         self.consume_type = consume_type
         self.product_type = product_type
         self.storage_type = product_type
+        
         self.trading = False
+        
+        #generate type 1 agents' Q(precieved value for holding good 1 , 2 , 3)
         if self.consume_type == 1:
             self.Q_2 = 65 + random.randint(1, 10)
         if self.consume_type == 1:
             self.Q_3 = 103 + random.randint(1, 10)
         if self.consume_type == 1:
             self.Q_1 = 65 + u + random.randint(1, 10)
-
+            
+        #generate type 2 agents' Q(precieved value for holding good 1 , 2 , 3)
         if self.consume_type == 2:
             self.Q_1 = 256 + random.randint(1, 10)
         if self.consume_type == 2:
             self.Q_3 = 244 + random.randint(1, 10)
         if self.consume_type == 2:
             self.Q_2 = 244 + u + random.randint(1, 10)
-
+            
+        #generate type 3 agents' Q(precieved value for holding good 1 , 2 , 3)
         if self.consume_type == 3:
             self.Q_1 = 290 + random.randint(1, 10)
         if self.consume_type == 3:
@@ -38,8 +43,8 @@ class Agent:
         print("Agent id:", self.id, "consume:", self.consume_type, ",produce:", self.product_type, ",storage:",
               self.storage_type, "Q_1:", self.Q_1, "Q_2:", self.Q_2, "Q_3:", self.Q_3,"trading:",self.trading)
 
-        # matching process
-
+        
+# matching process
 def match(mylist):
     random.shuffle(mylist)
     matchlist = dict()
@@ -47,6 +52,7 @@ def match(mylist):
     for i in index:
         matchlist[mylist[i]] = mylist[i + 1]
     return matchlist
+
 
 def get_Q_hold(agent):
     if agent.storage_type == 1:
