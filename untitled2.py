@@ -47,6 +47,7 @@ class Agent:
 
         
 # matching process
+# update agent's information of what situation he is facing
 def match(mylist):
     random.shuffle(mylist)
     matchlist = dict()
@@ -55,16 +56,20 @@ def match(mylist):
         matchlist[mylist[i]] = mylist[i + 1]
     for key in matchlist:
         update_opposite_storage(key,matchlist[key])
-        key.original_storage = key.storage_type
+        key.original_storage = key.storage_type #easy to update Q at the end of the round
         matchlist[key].original_storage = matchlist[key].storage_type
     return matchlist
 
+# update what good the other agent is holding
 def update_opposite_storage(agent1, agent2):
     storage_1 = agent1.storage_type
     storage_2 = agent2.storage_type
     agent1.opposite_storage = storage_2
     agent2.opposite_storage = storage_1
 
+    
+
+#get the parameters for decision making and updating Q
 def get_Q_hold(agent):
     if agent.storage_type == 1:
         return agent.Q_1
@@ -89,6 +94,7 @@ def set_Q_hold(agent,update_value):
     elif agent.storage_type == 3:
         agent.Q_3 = update_value
 
+        
 def set_original_Q_hold(agent,update_value):
     if agent.original_storage == 1:
         agent.Q_1 = update_value
@@ -121,6 +127,7 @@ def get_C_trade(agent):
     elif agent.opposite_storage == 3:
         return c_3
 
+# trading decision by each agent
 def transaction_decision(agent):
     Q_hold = get_Q_hold(agent)
     Q_trade = get_Q_trade(agent)
@@ -132,6 +139,7 @@ def transaction_decision(agent):
     else:
         agent.trading = False
 
+# trading result
 def produce_outcome(matched_list):
     trade_outcome = list()
     for key in matched_list.keys():
@@ -145,24 +153,29 @@ def produce_outcome(matched_list):
             matched_list[key].trading_result = False
     return trade_outcome
 
+# based on trading result, updates Q and storage
+
 def update_trading(agent):
-    if(agent.trading_result == False):
+    if(agent.trading_result == False): #if there is trade
         v_prime = get_C_hold(agent)*(-1) + β * get_Q_hold(agent)
-        updated_value = get_Q_hold(agent) + 0.7 * (v_prime - get_Q_hold(agent))
+        updated_value = get_Q_hold(agent) + γ * (v_prime - get_Q_hold(agent))
         set_Q_hold(agent,updated_value)
-    else:
-        if agent.consume_type == agent.opposite_storage:
-            agent.storage_type = agent.product_type
+    else: #if trade happened 
+        if agent.consume_type == agent.opposite_storage: #agent gets his own consumption good
+            agent.storage_type = agent.product_type #agent eats the consumption good and produces another production good 
             v_prime = get_C_hold(agent) * (-1) + β * get_Q_hold(agent) + u
-            updated_value = get_original_Q_hold(agent) + 0.7 * (v_prime - get_original_Q_hold(agent))
+            updated_value = get_original_Q_hold(agent) + γ * (v_prime - get_original_Q_hold(agent))
             set_original_Q_hold(agent,updated_value)
-        else:
-            agent.storage_type = agent.opposite_storage
+        else: #agent does not get his cons good
+            agent.storage_type = agent.opposite_storage 
             v_prime = get_C_hold(agent) *(-1) + β * get_Q_hold(agent)
-            updated_value = get_original_Q_hold(agent) + 0.7 * (v_prime - get_original_Q_hold(agent))
+            updated_value = get_original_Q_hold(agent) + γ * (v_prime - get_original_Q_hold(agent))
             set_original_Q_hold(agent, updated_value)
 
-def global_v1(mylist,count_down,count_up):
+            
+# Global behavior recorder
+
+def global_a1_s2_f3(mylist,count_down,count_up): #agent 1 holding 2 facing opportunity for 3
     result = list()
     for ele in mylist:
         if (ele.consume_type == 1 and ele.storage_type == 2 and ele.opposite_storage == 3):
@@ -174,6 +187,32 @@ def global_v1(mylist,count_down,count_up):
     result.append(count_down)
     return result
 
+def global_a2_s3_f1(mylist,count_down,count_up): #agent 2 holding 3 facing opportunity for 1
+    result = list()
+    for ele in mylist:
+        if (ele.consume_type == 2 and ele.storage_type == 3 and ele.opposite_storage == 1):
+            count_down += 1
+            if (ele.trading == True):
+                count_up += 1
+
+    result.append(count_up)
+    result.append(count_down)
+    return result
+
+def global_a3_s1_f2(mylist,count_down,count_up): #agent 3 holding 1 facing opportunity for 2
+    result = list()
+    for ele in mylist:
+        if (ele.consume_type == 3 and ele.storage_type == 1 and ele.opposite_storage == 2):
+            count_down += 1
+            if (ele.trading == True):
+                count_up += 1
+
+    result.append(count_up)
+    result.append(count_down)
+    return result
+
+
+# main code
 
 if __name__ == '__main__':
     u = 100
@@ -236,9 +275,14 @@ if __name__ == '__main__':
     game_continue = True
 
     count_round = 0
-    sum_up1 = 0
-    sum_down1 = 0
-    while(count_round <= 3):
+    sum_up123 = 0
+    sum_down123 = 0
+    sum_up231 = 0
+    sum_down231 = 0
+    sum_up312 = 0
+    sum_down312 = 0
+    
+    while(count_round < 130):
         count_round += 1
         matched_list = match(mylist)
 
@@ -246,10 +290,17 @@ if __name__ == '__main__':
             transaction_decision(key)
             transaction_decision(matched_list[key])
 
-        global_r1 = global_v1(mylist,0,0)
-
-        sum_up1 = sum_up1 + global_r1[0]
-        sum_down1 = sum_down1 + global_r1[1]
+        global_r1_2_3 = global_a1_s2_f3(mylist,0,0)
+        sum_up123 = sum_up123 + global_r1_2_3[0]
+        sum_down123 = sum_down123 + global_r1_2_3[1]
+        
+        global_r2_3_1 = global_a2_s3_f1(mylist,0,0)
+        sum_up231 = sum_up231 + global_r2_3_1[0]
+        sum_down231 = sum_down231 + global_r2_3_1[1]
+        
+        global_r3_1_2 = global_a3_s1_f2(mylist,0,0)
+        sum_up312 = sum_up312 + global_r3_1_2[0]
+        sum_down312 = sum_down312 + global_r3_1_2[1]
 
         for ele in mylist:
             ele.displayAgent()
@@ -262,14 +313,16 @@ if __name__ == '__main__':
 
         print(count_round)
 
-        # stopping_draw = random.uniform(0, 1)
-        # if stopping_draw > 0.1:
-        #     game_continue = True
-        # else:
-        #     game_continue = False
+        stopping_draw = random.uniform(0, 1)
+        if stopping_draw > 0.01:
+            game_continue = True
+        else:
+            game_continue = False
 
-    print("sumup1:", sum_up1)
-    print("sumdown1:", sum_down1)
+    print("Agent 1 with good 2 facing good 3:", sum_up123/sum_down123)
+    print("Agent 2 with good 3 facing good 1:", sum_up231/sum_down231)
+    print("Agent 3 with good 1 facing good 2:", sum_up312/sum_down312)
+    
 #hx wo ai ni
 # i love zw
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
