@@ -20,7 +20,7 @@ class Agent:
         if self.consume_type == 1:
             self.Q_3 = 103 + random.randint(1, 50)
         if self.consume_type == 1:
-            self.Q_1 = 65 + u + random.randint(1, 10)
+            self.Q_1 = 9999
             
         #generate type 2 agents' Q(precieved value for holding good 1 , 2 , 3)
         if self.consume_type == 2:
@@ -28,7 +28,7 @@ class Agent:
         if self.consume_type == 2:
             self.Q_3 = 244 + random.randint(1, 50)
         if self.consume_type == 2:
-            self.Q_2 = 244 + u + random.randint(1, 10)
+            self.Q_2 = 9999
             
         #generate type 3 agents' Q(precieved value for holding good 1 , 2 , 3)
         if self.consume_type == 3:
@@ -36,7 +36,7 @@ class Agent:
         if self.consume_type == 3:
             self.Q_2 = 230 + random.randint(1, 50)
         if self.consume_type == 3:
-            self.Q_3 = 290 + u + random.randint(1, 10)
+            self.Q_3 = 9999
 
         # other characteristics wait to be added
         Agent.agentCount += 1
