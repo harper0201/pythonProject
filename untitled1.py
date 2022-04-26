@@ -9,30 +9,32 @@ class Agent:
         self.consume_type = consume_type
         self.product_type = product_type
         self.storage_type = product_type
-        
+        self.opposite_storage = 0
+        self.trading_result = False
         self.trading = False
-        
+        self.original_storage = self.storage_type
+
         #generate type 1 agents' Q(precieved value for holding good 1 , 2 , 3)
         if self.consume_type == 1:
-            self.Q_2 = 65 + random.randint(1, 10)
+            self.Q_2 = 65 + random.randint(1, 50)
         if self.consume_type == 1:
-            self.Q_3 = 103 + random.randint(1, 10)
+            self.Q_3 = 103 + random.randint(1, 50)
         if self.consume_type == 1:
             self.Q_1 = 65 + u + random.randint(1, 10)
             
         #generate type 2 agents' Q(precieved value for holding good 1 , 2 , 3)
         if self.consume_type == 2:
-            self.Q_1 = 256 + random.randint(1, 10)
+            self.Q_1 = 256 + random.randint(1, 50)
         if self.consume_type == 2:
-            self.Q_3 = 244 + random.randint(1, 10)
+            self.Q_3 = 244 + random.randint(1, 50)
         if self.consume_type == 2:
             self.Q_2 = 244 + u + random.randint(1, 10)
             
         #generate type 3 agents' Q(precieved value for holding good 1 , 2 , 3)
         if self.consume_type == 3:
-            self.Q_1 = 290 + random.randint(1, 10)
+            self.Q_1 = 290 + random.randint(1, 50)
         if self.consume_type == 3:
-            self.Q_2 = 230 + random.randint(1, 10)
+            self.Q_2 = 230 + random.randint(1, 50)
         if self.consume_type == 3:
             self.Q_3 = 290 + u + random.randint(1, 10)
 
@@ -41,7 +43,7 @@ class Agent:
 
     def displayAgent(self):
         print("Agent id:", self.id, "consume:", self.consume_type, ",produce:", self.product_type, ",storage:",
-              self.storage_type, "Q_1:", self.Q_1, "Q_2:", self.Q_2, "Q_3:", self.Q_3,"trading:",self.trading)
+              self.storage_type, "Q_1:", self.Q_1, "Q_2:", self.Q_2, "Q_3:", self.Q_3,"opposite:",self.opposite_storage,"trading:",self.trading,"trading_reuslt:",self.trading_result)
 
         
 # matching process
@@ -51,8 +53,17 @@ def match(mylist):
     index = list(range(0, len(mylist), 2))
     for i in index:
         matchlist[mylist[i]] = mylist[i + 1]
+    for key in matchlist:
+        update_opposite_storage(key,matchlist[key])
+        key.original_storage = key.storage_type
+        matchlist[key].original_storage = matchlist[key].storage_type
     return matchlist
 
+def update_opposite_storage(agent1, agent2):
+    storage_1 = agent1.storage_type
+    storage_2 = agent2.storage_type
+    agent1.opposite_storage = storage_2
+    agent2.opposite_storage = storage_1
 
 def get_Q_hold(agent):
     if agent.storage_type == 1:
@@ -62,13 +73,37 @@ def get_Q_hold(agent):
     elif agent.storage_type == 3:
         return agent.Q_3
 
-def get_Q_trade(agent1,agent2):
-    if agent2.storage_type == 1:
-        return agent1.Q_1
-    elif agent2.storage_type == 2:
-        return agent1.Q_2
-    elif agent2.storage_type == 3:
-        return agent1.Q_3
+def get_original_Q_hold(agent):
+    if agent.original_storage == 1:
+        return agent.Q_1
+    elif agent.original_storage == 2:
+        return agent.Q_2
+    elif agent.original_storage == 3:
+        return agent.Q_3
+
+def set_Q_hold(agent,update_value):
+    if agent.storage_type == 1:
+        agent.Q_1 = update_value
+    elif agent.storage_type == 2:
+        agent.Q_2 = update_value
+    elif agent.storage_type == 3:
+        agent.Q_3 = update_value
+
+def set_original_Q_hold(agent,update_value):
+    if agent.original_storage == 1:
+        agent.Q_1 = update_value
+    elif agent.original_storage == 2:
+        agent.Q_2 = update_value
+    elif agent.original_storage == 3:
+        agent.Q_3 = update_value
+
+def get_Q_trade(agent):
+    if agent.opposite_storage == 1:
+        return agent.Q_1
+    elif agent.opposite_storage == 2:
+        return agent.Q_2
+    elif agent.opposite_storage == 3:
+        return agent.Q_3
 
 def get_C_hold(agent):
     if agent.storage_type == 1:
@@ -78,25 +113,55 @@ def get_C_hold(agent):
     elif agent.storage_type == 3:
         return c_3
 
-def transaction(agent1, agent2):
-    Q_hold = get_Q_hold(agent1)
-    Q_trade = get_Q_trade(agent1,agent2)
-    C_hold = get_C_hold(agent1)
-    C_trade = get_C_hold(agent2)
+def get_C_trade(agent):
+    if agent.opposite_storage == 1:
+        return c_1
+    elif agent.opposite_storage == 2:
+        return c_2
+    elif agent.opposite_storage == 3:
+        return c_3
+
+def transaction_decision(agent):
+    Q_hold = get_Q_hold(agent)
+    Q_trade = get_Q_trade(agent)
+    C_hold = get_C_hold(agent)
+    C_trade = get_C_trade(agent)
 
     if β * Q_hold - C_hold < β * Q_trade - C_trade:
-        agent1.trading = True
+        agent.trading = True
     else:
-        agent1.trading = False
+        agent.trading = False
 
 def produce_outcome(matched_list):
     trade_outcome = list()
     for key in matched_list.keys():
         if key.trading == True and matched_list[key].trading == True:
             trade_outcome.append(True)
+            key.trading_result = True
+            matched_list[key].trading_result = True
         else:
             trade_outcome.append(False)
+            key.trading_result = False
+            matched_list[key].trading_result = False
     return trade_outcome
+
+def update_trading(agent):
+    if(agent.trading_result == False):
+        v_prime = get_C_hold(agent)*(-1) + β * get_Q_hold(agent)
+        updated_value = get_Q_hold(agent) + 0.7 * (v_prime - get_Q_hold(agent))
+        set_Q_hold(agent,updated_value)
+    else:
+        if agent.consume_type == agent.opposite_storage:
+            agent.storage_type = agent.product_type
+            v_prime = get_C_hold(agent) * (-1) + β * get_Q_hold(agent) + u
+            updated_value = get_original_Q_hold(agent) + 0.7 * (v_prime - get_original_Q_hold(agent))
+            set_original_Q_hold(agent,updated_value)
+        else:
+            agent.storage_type = agent.opposite_storage
+            v_prime = get_C_hold(agent) *(-1) + β * get_Q_hold(agent)
+            updated_value = get_original_Q_hold(agent) + 0.7 * (v_prime - get_original_Q_hold(agent))
+            set_original_Q_hold(agent, updated_value)
+
 
 if __name__ == '__main__':
     u = 100
@@ -154,19 +219,33 @@ if __name__ == '__main__':
     mylist.append(agent23)
     agent24 = Agent(24, 3, 1)
     mylist.append(agent24)
-    matched_list = match(mylist)
 
-    for key in matched_list.keys():
-        print(key.id,matched_list[key].id)
+    game_continue = True
+    count_round = 0
+    while(game_continue == True):
+        count_round += 1
+        matched_list = match(mylist)
 
-    for key in matched_list.keys():
-        transaction(key,matched_list[key])
-        transaction(matched_list[key],key)
+        for key in matched_list.keys():
+            transaction_decision(key)
+            transaction_decision(matched_list[key])
 
-    for ele in mylist:
-        ele.displayAgent()
+        produce_outcome(matched_list)
 
-    print(produce_outcome(matched_list))
+        for key in matched_list.keys():
+            update_trading(key)
+            update_trading(matched_list[key])
+
+        print(count_round)
+        for ele in mylist:
+            ele.displayAgent()
+
+        stopping_draw = random.uniform(0, 1)
+        if stopping_draw > 0.1:
+            game_continue = True
+        else:
+            game_continue = False
+
 
 #hx wo ai ni
 # i love zw
