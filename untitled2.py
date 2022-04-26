@@ -162,6 +162,18 @@ def update_trading(agent):
             updated_value = get_original_Q_hold(agent) + 0.7 * (v_prime - get_original_Q_hold(agent))
             set_original_Q_hold(agent, updated_value)
 
+def global_v1(mylist,count_down,count_up):
+    result = list()
+    for ele in mylist:
+        if (ele.consume_type == 1 and ele.storage_type == 2 and ele.opposite_storage == 3):
+            count_down += 1
+            if (ele.trading == True):
+                count_up += 1
+
+    result.append(count_up)
+    result.append(count_down)
+    return result
+
 
 if __name__ == '__main__':
     u = 100
@@ -170,6 +182,7 @@ if __name__ == '__main__':
     c_2 = 4
     c_3 = 9
     t = 1
+
     mylist = list()
     agent1 = Agent(1, 1, 2)
     mylist.append(agent1)
@@ -221,14 +234,25 @@ if __name__ == '__main__':
     mylist.append(agent24)
 
     game_continue = True
+
     count_round = 0
-    while(game_continue == True):
+    sum_up1 = 0
+    sum_down1 = 0
+    while(count_round <= 3):
         count_round += 1
         matched_list = match(mylist)
 
         for key in matched_list.keys():
             transaction_decision(key)
             transaction_decision(matched_list[key])
+
+        global_r1 = global_v1(mylist,0,0)
+
+        sum_up1 = sum_up1 + global_r1[0]
+        sum_down1 = sum_down1 + global_r1[1]
+
+        for ele in mylist:
+            ele.displayAgent()
 
         produce_outcome(matched_list)
 
@@ -237,16 +261,15 @@ if __name__ == '__main__':
             update_trading(matched_list[key])
 
         print(count_round)
-        for ele in mylist:
-            ele.displayAgent()
 
-        stopping_draw = random.uniform(0, 1)
-        if stopping_draw > 0.1:
-            game_continue = True
-        else:
-            game_continue = False
+        # stopping_draw = random.uniform(0, 1)
+        # if stopping_draw > 0.1:
+        #     game_continue = True
+        # else:
+        #     game_continue = False
 
-
+    print("sumup1:", sum_up1)
+    print("sumdown1:", sum_down1)
 #hx wo ai ni
 # i love zw
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
