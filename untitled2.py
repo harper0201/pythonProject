@@ -221,6 +221,7 @@ if __name__ == '__main__':
     c_2 = 4
     c_3 = 9
     t = 1
+    γ = 1/t
 
     mylist = list()
     agent1 = Agent(1, 1, 2)
@@ -282,8 +283,9 @@ if __name__ == '__main__':
     sum_up312 = 0
     sum_down312 = 0
     
-    while(count_round < 130):
+    while(count_round < 140 ):
         count_round += 1
+        t = t+1
         matched_list = match(mylist)
 
         for key in matched_list.keys():
